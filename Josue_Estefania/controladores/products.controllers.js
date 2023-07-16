@@ -3,7 +3,9 @@ import Product from '../modelos/products.model.js'
 
 export const findAllProducts = async (req, res) => {
     try {
-        const products = await Product.find({ precio: { $gte: 2.5, $lte: 5 } });
+        const products = await Product.find({ 
+            stock: { $gt: 100 } // Agregar condición de stock mayor a 100
+        });
 
         // Actualizar el campo saldo para cada producto
         for (const product of products) {
@@ -22,23 +24,35 @@ export const findAllProducts = async (req, res) => {
 
 export const findOneProduct = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
+        const { id, description } = req.query;
 
-        if (product && product.precio >= 2.5 && product.precio <= 5) {
+        let query = {};
+
+        if (id) {
+            query = { _id: id };
+        } else if (description) {
+            query = { description: description };
+        } else {
+            return res.status(400).json({ message: 'Debe proporcionar un ID o una descripción para buscar el producto.' });
+        }
+
+        const product = await Product.findOne(query);
+
+        if (!product) {
+            return res.status(404).json({ message: 'No se encontró ningún producto con el ID o descripción proporcionados.' });
+        }
+
+        if (product.precio >= 2.5 && product.precio <= 5) {
             // Actualizar el campo saldo para el producto encontrado
             const saldo = product.precio * product.stock;
             await Product.findByIdAndUpdate(product._id, { $set: { saldo: saldo } });
 
             res.status(200).json(product);
         } else {
-            res.status(404).json({
-                message: 'El producto no existe o el precio está fuera del rango permitido.'
-            });
+            res.status(404).json({ message: 'El producto encontrado no cumple con el rango de precio permitido.' });
         }
     } catch (error) {
-        res.status(500).json({
-            message: error.message || 'Algo salió mal mientras se buscaba el producto'
-        });
+        res.status(500).json({ message: error.message || 'Ocurrió un error al buscar el producto.' });
     }
 };
 
