@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import './db.js'
 import ProductsRoutes from './ruteadores/products.routs.js'
+import authRoutes  from'./ruteadores/auth.ruteadores.js';
 
 const app = express();
 const PORT =  process.env.PORT || 3000
@@ -21,6 +22,8 @@ app.get('/', (req, res)=>{
 //RUTAS:
 
 app.use('/api/products', ProductsRoutes);
+
+app.use('/api/auth', authRoutes);
 
 app.listen(PORT)
 console.log("servidor abierto en el: http://localhost:"+ PORT)
