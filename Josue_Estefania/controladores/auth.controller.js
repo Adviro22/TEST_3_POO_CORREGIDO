@@ -5,12 +5,12 @@ import User from '../modelos/user.js';
 export const register = async (req, res) => {
   try {
     // Obtener los datos del cuerpo de la solicitud
-    const { username, email, password } = req.body;
+    const { username, correo, password } = req.body;
 
     // Validar los datos (por ejemplo, verificar que no falten campos)
 
     // Crear un nuevo usuario en la base de datos
-    const newUser = new User({ username, email, password });
+    const newUser = new User({ username, correo, password });
     await newUser.save();
 
     // Generar un token JWT válido
